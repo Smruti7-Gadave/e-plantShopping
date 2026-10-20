@@ -1,133 +1,174 @@
-import { useState } from 'react';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { removeItem, updateQuantity } from './CartSlice.jsx';
 
-// Keep cart calculations in one place so every displayed total stays consistent.
-const calculateCartTotal = (items) =>
-  items.reduce(
-    (sum, item) => sum + Number(item.price) * Number(item.quantity),
-    0
-  );
+const PLACEHOLDER_IMAGE =
+  'https://placehold.co/160x160/eaf2e5/315c35?text=Plant';
 
+// Format prices consistently in Indian Rupees.
 const formatPrice = (amount) =>
   new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(Number(amount) || 0);
 
 function CartItem({ onContinueShopping }) {
   const dispatch = useDispatch();
-  const items = useSelector((state) => state.cart.items);
-  const [checkoutMessage, setCheckoutMessage] = useState('');
-  const total = calculateCartTotal(items);
 
-  const handleCheckout = () => {
-    const message = 'Functionality Coming Soon! Thank you for shopping with Paradise Nursery.';
-    setCheckoutMessage(message);
-    alert(message);
+  // Read the current cart directly from Redux.
+  const cart = useSelector((state) => state.cart.items);
+
+  // Calculate the total price for one plant at its current quantity.
+  const calculateTotalCost = (item) =>
+    (Number(item.price) || 0) * (Number(item.quantity) || 0);
+
+  // Calculate the combined cost of every item in the cart.
+  const calculateTotalAmount = () =>
+    cart.reduce((total, item) => total + calculateTotalCost(item), 0);
+
+  // Increase the quantity of a plant by one.
+  const handleIncrement = (item) => {
+    dispatch(
+      updateQuantity({
+        id: item.id,
+        quantity: Number(item.quantity) + 1,
+      })
+    );
   };
 
-  const handleQuantityChange = (item, change) => {
-    const nextQuantity = Number(item.quantity) + change;
+  // Decrease the quantity, removing the plant if it reaches zero.
+  const handleDecrement = (item) => {
+    const newQuantity = Number(item.quantity) - 1;
 
-    // When quantity reaches zero, remove the item so the cart and product list stay in sync.
-    if (nextQuantity < 1) {
+    if (newQuantity <= 0) {
       dispatch(removeItem(item.id));
     } else {
-      dispatch(updateQuantity({ id: item.id, quantity: nextQuantity }));
+      dispatch(
+        updateQuantity({
+          id: item.id,
+          quantity: newQuantity,
+        })
+      );
     }
-    setCheckoutMessage('');
   };
 
-  const handleRemoveItem = (id) => {
-    dispatch(removeItem(id));
-    setCheckoutMessage('');
+  // Remove a particular plant from the cart.
+  const handleRemove = (item) => {
+    dispatch(removeItem(item.id));
+  };
+
+  // Checkout is not implemented yet.
+  const handleCheckoutShopping = () => {
+    alert('Coming Soon');
+  };
+
+  // Return to the product listing through the parent component.
+  const handleContinueShopping = () => {
+    if (typeof onContinueShopping === 'function') {
+      onContinueShopping();
+    }
   };
 
   return (
     <main className="cart-page">
       <h1>Your Shopping Cart</h1>
 
-      {items.length === 0 ? (
+      <section className="cart-summary" aria-label="Cart summary">
+        <h2 className="cart-total-amount">
+          Total Cart Amount: {formatPrice(calculateTotalAmount())}
+        </h2>
+      </section>
+
+      {cart.length === 0 ? (
         <div className="empty-cart">
           <h2>Your cart is empty</h2>
           <p>Discover beautiful plants for your home.</p>
         </div>
       ) : (
         <div className="cart-items">
-          {items.map((item) => (
+          {cart.map((item) => (
             <article className="cart-item" key={item.id}>
               <img
-                src={item.image}
+                className="cart-item-image"
+                src={item.image || PLACEHOLDER_IMAGE}
                 alt={item.name}
                 onError={(event) => {
                   event.currentTarget.onerror = null;
-                  event.currentTarget.src =
-                    'https://placehold.co/160x160/eaf2e5/315c35?text=Plant';
+                  event.currentTarget.src = PLACEHOLDER_IMAGE;
                 }}
               />
 
               <div className="cart-item-details">
-                <h2>{item.name}</h2>
-                <p>Unit price: {formatPrice(Number(item.price))}</p>
-                <p>Quantity: {item.quantity}</p>
-                <p>
-                  Item total: {formatPrice(Number(item.price) * Number(item.quantity))}
+                <h3 className="cart-item-name">{item.name}</h3>
+
+                <p className="cart-item-cost">
+                  Unit Price: {formatPrice(item.price)}
                 </p>
 
                 <div className="quantity-controls">
                   <button
                     type="button"
+                    className="cart-item-button"
                     aria-label={`Decrease ${item.name} quantity`}
-                    onClick={() => handleQuantityChange(item, -1)}
+                    onClick={() => handleDecrement(item)}
                   >
                     −
                   </button>
 
-                  <span aria-live="polite">{item.quantity}</span>
+                  <span
+                    className="cart-item-quantity"
+                    aria-live="polite"
+                    aria-label={`Quantity: ${item.quantity}`}
+                  >
+                    {item.quantity}
+                  </span>
 
                   <button
                     type="button"
+                    className="cart-item-button"
                     aria-label={`Increase ${item.name} quantity`}
-                    onClick={() => handleQuantityChange(item, 1)}
+                    onClick={() => handleIncrement(item)}
                   >
                     +
                   </button>
-
-                  <button
-                    type="button"
-                    className="delete-button"
-                    aria-label={`Remove ${item.name} from cart`}
-                    onClick={() => handleRemoveItem(item.id)}
-                  >
-                    Delete
-                  </button>
                 </div>
+
+                <p className="cart-item-total">
+                  Total: {formatPrice(calculateTotalCost(item))}
+                </p>
+
+                <button
+                  type="button"
+                  className="delete-button cart-item-delete"
+                  aria-label={`Remove ${item.name} from cart`}
+                  onClick={() => handleRemove(item)}
+                >
+                  Delete
+                </button>
               </div>
             </article>
           ))}
         </div>
       )}
 
-      <section className="cart-summary" aria-label="Cart summary">
-        <h2>Total Cart Amount: {formatPrice(total)}</h2>
-        <button type="button" onClick={handleCheckout}>
-          Checkout
-        </button>
+      <section className="cart-summary" aria-label="Shopping actions">
         <button
           type="button"
-          className="continue-button"
-          onClick={onContinueShopping}
+          className="get-started-button1"
+          onClick={handleCheckoutShopping}
+        >
+          Checkout
+        </button>
+
+        <button
+          type="button"
+          className="continue-button get-started-button1"
+          onClick={handleContinueShopping}
         >
           Continue Shopping
         </button>
-        {checkoutMessage && (
-          <p className="checkout-message" role="status">
-            {checkoutMessage}
-          </p>
-        )}
       </section>
     </main>
   );
