@@ -1,11 +1,9 @@
-
 import { useDispatch, useSelector } from 'react-redux';
 import { removeItem, updateQuantity } from './CartSlice.jsx';
 
 const PLACEHOLDER_IMAGE =
   'https://placehold.co/160x160/eaf2e5/315c35?text=Plant';
 
-// Format prices consistently in Indian Rupees.
 const formatPrice = (amount) =>
   new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -16,55 +14,42 @@ const formatPrice = (amount) =>
 
 function CartItem({ onContinueShopping }) {
   const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart.items ?? []);
 
-  // Read the current cart directly from Redux.
-  const cart = useSelector((state) => state.cart.items);
-
-  // Calculate the total price for one plant at its current quantity.
   const calculateTotalCost = (item) =>
     (Number(item.price) || 0) * (Number(item.quantity) || 0);
 
-  // Calculate the combined cost of every item in the cart.
   const calculateTotalAmount = () =>
     cart.reduce((total, item) => total + calculateTotalCost(item), 0);
 
-  // Increase the quantity of a plant by one.
   const handleIncrement = (item) => {
     dispatch(
       updateQuantity({
         id: item.id,
-        quantity: Number(item.quantity) + 1,
+        quantity: (Number(item.quantity) || 0) + 1,
       })
     );
   };
 
-  // Decrease the quantity, removing the plant if it reaches zero.
   const handleDecrement = (item) => {
-    const newQuantity = Number(item.quantity) - 1;
+    const newQuantity = (Number(item.quantity) || 0) - 1;
 
     if (newQuantity <= 0) {
       dispatch(removeItem(item.id));
-    } else {
-      dispatch(
-        updateQuantity({
-          id: item.id,
-          quantity: newQuantity,
-        })
-      );
+      return;
     }
+
+    dispatch(updateQuantity({ id: item.id, quantity: newQuantity }));
   };
 
-  // Remove a particular plant from the cart.
   const handleRemove = (item) => {
     dispatch(removeItem(item.id));
   };
 
-  // Checkout is not implemented yet.
   const handleCheckoutShopping = () => {
-    alert('Coming Soon');
+    window.alert('Coming Soon');
   };
 
-  // Return to the product listing through the parent component.
   const handleContinueShopping = () => {
     if (typeof onContinueShopping === 'function') {
       onContinueShopping();
@@ -76,13 +61,13 @@ function CartItem({ onContinueShopping }) {
       <h1>Your Shopping Cart</h1>
 
       <section className="cart-summary" aria-label="Cart summary">
-        <h2 className="cart-total-amount">
+        <h2 className="cart-total-amount" aria-live="polite">
           Total Cart Amount: {formatPrice(calculateTotalAmount())}
         </h2>
       </section>
 
       {cart.length === 0 ? (
-        <div className="empty-cart">
+        <div className="empty-cart" role="status">
           <h2>Your cart is empty</h2>
           <p>Discover beautiful plants for your home.</p>
         </div>
@@ -93,7 +78,7 @@ function CartItem({ onContinueShopping }) {
               <img
                 className="cart-item-image"
                 src={item.image || PLACEHOLDER_IMAGE}
-                alt={item.name}
+                alt={item.name || 'Plant'}
                 onError={(event) => {
                   event.currentTarget.onerror = null;
                   event.currentTarget.src = PLACEHOLDER_IMAGE;
@@ -102,12 +87,14 @@ function CartItem({ onContinueShopping }) {
 
               <div className="cart-item-details">
                 <h3 className="cart-item-name">{item.name}</h3>
-
                 <p className="cart-item-cost">
                   Unit Price: {formatPrice(item.price)}
                 </p>
 
-                <div className="quantity-controls">
+                <div
+                  className="quantity-controls"
+                  aria-label={`Quantity controls for ${item.name}`}
+                >
                   <button
                     type="button"
                     className="cart-item-button"
@@ -136,7 +123,7 @@ function CartItem({ onContinueShopping }) {
                 </div>
 
                 <p className="cart-item-total">
-                  Total: {formatPrice(calculateTotalCost(item))}
+                  Subtotal: {formatPrice(calculateTotalCost(item))}
                 </p>
 
                 <button
@@ -158,6 +145,7 @@ function CartItem({ onContinueShopping }) {
           type="button"
           className="get-started-button1"
           onClick={handleCheckoutShopping}
+          disabled={cart.length === 0}
         >
           Checkout
         </button>
