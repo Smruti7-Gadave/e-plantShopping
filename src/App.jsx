@@ -17,7 +17,7 @@ function App() {
 
   return (
     <div className="app">
-      <main className="landing-page">
+      <main className="landing-page background-image">
         <div className="landing-content">
           <h1>Paradise Nursery</h1>
           <h2>Bring Nature Home</h2>
