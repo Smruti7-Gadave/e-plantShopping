@@ -1,16 +1,33 @@
-# React + Vite
+# e-plantShopping — Paradise Nursery
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Project Overview
+e-plantShopping is an online houseplant shopping application for Paradise Nursery. Users can browse houseplants by category, add products to a shopping cart, update quantities, remove items, and view item subtotals and the total amount.
 
-Currently, two official plugins are available:
+## Features
+- Landing page with the Paradise Nursery name and a Get Started button.
+- About Us section describing Paradise Nursery.
+- Three houseplant categories with six products in each category.
+- Product thumbnails, names, prices, and Add to Cart buttons.
+- Redux Toolkit cart state management.
+- Dynamic cart item count.
+- Increase and decrease product quantities and remove cart items.
+- Per-item totals and overall cart total.
+- Checkout message indicating that checkout is coming soon.
+- Continue Shopping navigation.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Technologies
+- React
+- Vite
+- Redux Toolkit
+- React Redux
+- JavaScript
+- CSS
 
-## React Compiler
+## Run Locally
+1. Install Node.js.
+2. Install dependencies: `npm install`
+3. Start the development server: `npm run dev`
+4. Open the local URL shown in the terminal.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Project Name
+e-plantShopping
