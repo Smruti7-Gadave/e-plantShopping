@@ -1,4 +1,3 @@
-
 * {
   box-sizing: border-box;
 }
@@ -12,6 +11,16 @@ body {
   min-height: 100vh;
 }
 
+/* Landing-page background image required by the project rubric. */
+.background-image {
+  background-image:
+    linear-gradient(rgba(0, 30, 10, 0.62), rgba(0, 30, 10, 0.72)),
+    url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1800&q=85');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .landing-page {
   min-height: 100vh;
   padding: 60px 24px;
@@ -20,10 +29,6 @@ body {
   align-items: center;
   text-align: center;
   color: white;
-  background:
-    linear-gradient(rgba(0, 30, 10, 0.62), rgba(0, 30, 10, 0.72)),
-    url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1800&q=85')
-    center / cover no-repeat;
 }
 
 .landing-content {
@@ -57,7 +62,6 @@ body {
   cursor: pointer;
 }
 
-
 .landing-content h1,
 .landing-content h2,
 .about-us h2 {
@@ -67,14 +71,11 @@ body {
 
 .about-us p {
   color: #ffffff;
+  line-height: 1.8;
 }
 
 .about-us h2 {
   font-size: 26px;
-}
-
-.about-us p {
-  line-height: 1.8;
 }
 
 .plants-placeholder {
