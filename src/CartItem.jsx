@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeItem, updateQuantity } from './CartSlice.jsx';
 
-// Keep all cart calculations in one place so the displayed values stay consistent.
+// Keep cart calculations in one place so every displayed total stays consistent.
 const calculateCartTotal = (items) =>
   items.reduce(
     (sum, item) => sum + Number(item.price) * Number(item.quantity),
@@ -24,18 +24,20 @@ function CartItem({ onContinueShopping }) {
   const total = calculateCartTotal(items);
 
   const handleCheckout = () => {
-    setCheckoutMessage(
-      'Checkout Coming Soon! Thank you for shopping with Paradise Nursery.'
-    );
+    const message = 'Functionality Coming Soon! Thank you for shopping with Paradise Nursery.';
+    setCheckoutMessage(message);
+    alert(message);
   };
 
   const handleQuantityChange = (item, change) => {
     const nextQuantity = Number(item.quantity) + change;
 
-    // Quantity must stay at one or more; use Delete to remove an item.
-    if (nextQuantity < 1) return;
-
-    dispatch(updateQuantity({ id: item.id, quantity: nextQuantity }));
+    // When quantity reaches zero, remove the item so the cart and product list stay in sync.
+    if (nextQuantity < 1) {
+      dispatch(removeItem(item.id));
+    } else {
+      dispatch(updateQuantity({ id: item.id, quantity: nextQuantity }));
+    }
     setCheckoutMessage('');
   };
 
@@ -79,7 +81,6 @@ function CartItem({ onContinueShopping }) {
                   <button
                     type="button"
                     aria-label={`Decrease ${item.name} quantity`}
-                    disabled={item.quantity <= 1}
                     onClick={() => handleQuantityChange(item, -1)}
                   >
                     −
@@ -111,12 +112,8 @@ function CartItem({ onContinueShopping }) {
       )}
 
       <section className="cart-summary" aria-label="Cart summary">
-        <h2>Total Amount: {formatPrice(total)}</h2>
-        <button
-          type="button"
-          onClick={handleCheckout}
-          disabled={items.length === 0}
-        >
+        <h2>Total Cart Amount: {formatPrice(total)}</h2>
+        <button type="button" onClick={handleCheckout}>
           Checkout
         </button>
         <button
