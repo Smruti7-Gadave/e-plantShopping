@@ -16,9 +16,11 @@ function CartItem({ onContinueShopping }) {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart.items ?? []);
 
+  // Calculate the subtotal for one cart item using its unit price and quantity.
   const calculateTotalCost = (item) =>
     (Number(item.price) || 0) * (Number(item.quantity) || 0);
 
+  // Add every item subtotal to display the current cart total.
   const calculateTotalAmount = () =>
     cart.reduce((total, item) => total + calculateTotalCost(item), 0);
 
@@ -60,11 +62,9 @@ function CartItem({ onContinueShopping }) {
     <main className="cart-page">
       <h1>Your Shopping Cart</h1>
 
-      <section className="cart-summary" aria-label="Cart summary">
-        <h2 className="cart-total-amount" aria-live="polite">
-          Total Cart Amount: {formatPrice(calculateTotalAmount())}
-        </h2>
-      </section>
+      <h2 className="cart-total-amount" aria-live="polite">
+        Total Cart Amount: {formatPrice(calculateTotalAmount())}
+      </h2>
 
       {cart.length === 0 ? (
         <div className="empty-cart" role="status">
